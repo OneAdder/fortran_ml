@@ -89,7 +89,7 @@ contains
     real(sp) :: db
     real(sp) :: y_reshaped(self%n_features, size(x(1, :)))
     integer :: i
-    y_reshaped(:, :) = reshape((/y, y, y/), shape(y_reshaped))
+    y_reshaped(:, :) = reshape([y, y, y], shape(y_reshaped))
     do i = 1, self%iterations
       y_pred(:, :) = predict(self, x)
       dw = - (2 * matmul(x, transpose(y_reshaped - y_pred))) / 100

@@ -24,7 +24,7 @@ program test_ml
   end do
   y = iris_dataset%label
   lin_reg = LinearRegression(4)
-  call lin_reg%fit(x, reshape(y, (/size(y), 1/)))
+  call lin_reg%fit(x, reshape(y, [size(y), 1]))
   print *, 'Linear regression weights: ', lin_reg%weights
   deallocate(x)
   deallocate(iris_dataset)
