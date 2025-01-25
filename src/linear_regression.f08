@@ -8,7 +8,6 @@ module linear_regression
     ! Linear regression algorithm
     real(sp), allocatable :: weights(:, :)
     integer :: seq_len
-    integer :: n_features
     real(sp) :: bias
     integer :: iterations
     real(sp) :: learning_rate
@@ -23,24 +22,17 @@ module linear_regression
   end interface
 
 contains
-  function init(seq_len, n_features, iterations, learning_rate) result(self)
+  function init(seq_len, iterations, learning_rate) result(self)
     ! initialize parameters and allocate start weights
     ! seq_len: length of input sequences
-    ! n_features: (optional, default 1) amount of output features
     ! iterations: (optional, default 10000) amount of training epochs
     ! learning_rate: (optional, default 0.01) learning rate
     integer :: seq_len
-    integer, optional :: n_features
     integer, optional :: iterations
     real(sp), optional :: learning_rate
     type(LinearRegression) :: self
-    integer :: i, j
+    integer :: i
     self%seq_len = seq_len
-    if (present(n_features)) then
-      self%n_features = n_features
-    else
-      self%n_features = 1
-    end if
     if (present(iterations)) then
       self%iterations = iterations
     else
@@ -51,11 +43,9 @@ contains
     else
       self%learning_rate = 0.01
     end if
-    allocate(self%weights(seq_len, self%n_features))
-    do j = 1, seq_len
-      do i = 1, self%n_features
-        self%weights(j, i) = 0
-      end do
+    allocate(self%weights(seq_len, 1))
+    do i = 1, seq_len
+      self%weights(i, 1) = 0
     end do
     self%bias = 0
   end function
@@ -71,11 +61,11 @@ contains
   function predict(self, x) result(p)
     ! predict with regression
     ! x: (seq_len, total_entries)
-    ! weights: w: (seq_len, n_features)
-    ! p: (n_features, total_entries)
+    ! weights: w: (seq_len, 1)
+    ! p: (1, total_entries)
     class(LinearRegression) :: self
     real(sp), intent (in) :: x(:, :)
-    real(sp) :: p(self%n_features, size(x(1, :)))
+    real(sp) :: p(1, size(x(1, :)))
     p = matmul(transpose(x), self%weights) + self%bias
   end function
 
@@ -86,10 +76,10 @@ contains
     class(LinearRegression) :: self
     real(sp), intent(in) :: x(:, :)
     real(sp), intent(in) :: y(:, :)
-    real(sp) :: y_pred(self%n_features, size(x(1, :)))
-    real(sp) :: dw(self%seq_len, self%n_features)
+    real(sp) :: y_pred(1, size(x(1, :)))
+    real(sp) :: dw(self%seq_len, 1)
     real(sp) :: db
-    real(sp) :: y_reshaped(self%n_features, size(x(1, :)))
+    real(sp) :: y_reshaped(1, size(x(1, :)))
     integer :: i
     y_reshaped(:, :) = reshape([y, y, y], shape(y_reshaped))
     do i = 1, self%iterations
