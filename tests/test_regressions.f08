@@ -14,9 +14,9 @@ program test_ml
   type(LinearRegression) :: lin_reg
   type(LogisticRegression) :: log_reg
 
-  file_length = get_file_length("data/iris.csv")
+  file_length = get_file_length("tests/iris.csv")
   allocate(iris_dataset(file_length))
-  call load_iris_csv("data/iris.csv", file_length, iris_dataset)
+  call load_iris_csv("tests/iris.csv", file_length, iris_dataset)
   allocate(x(4, size(iris_dataset)))
   do i = 1, size(iris_dataset)
     x(1, i) = iris_dataset(i)%p1
