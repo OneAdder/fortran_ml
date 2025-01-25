@@ -1,6 +1,8 @@
 module linear_regression
   use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
   implicit none
+  private
+  public :: LinearRegression
 
   type :: LinearRegression
     ! Linear regression algorithm
