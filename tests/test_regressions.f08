@@ -1,7 +1,7 @@
 program test_ml
   use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
-  use :: linear_regression
-  use :: logistic_regression
+  use :: linear_regression, only: LinearRegression
+  use :: logistic_regression, only: LogisticRegression
   implicit none
   type :: iris_entry
     real(sp) :: p1, p2, p3, p4, label

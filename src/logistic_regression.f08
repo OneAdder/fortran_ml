@@ -1,6 +1,7 @@
 module logistic_regression
   use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
-  use linear_regression
+  use linear_regression, only: LinearRegression
+  use functions, only: sigmoid
   implicit none
   private
   public :: LogisticRegression
@@ -53,7 +54,7 @@ contains
     real(sp) :: z(1, size(x(1, :)))
     real(sp) :: p(1, size(x(1, :)))
     z = matmul(transpose(x), self%weights) + self%bias
-    p = 1 / (1 + exp(-z))
+    p = sigmoid(z)
   end function
 
 end module logistic_regression
