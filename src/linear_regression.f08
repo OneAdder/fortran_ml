@@ -65,15 +65,13 @@ contains
   end function
 
   function dot_product_last_axis(a, b) result(p)
-    ! perform dot product on last axis
+    ! perform dot product by last axis
     ! a: (seq_len, total_entries)
     ! b: (seq_len)
     ! p: (total_entries)
     real(sp), intent (in) :: a(:, :)
     real(sp), intent (in) :: b(:)
     real(sp) :: p(size(a(1, :)))
-    real(sp) :: b_matrix(1, size(b))
-    b_matrix = reshape(b, shape(b_matrix))
     p = matmul(b, a)
   end function
 
