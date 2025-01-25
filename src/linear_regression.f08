@@ -83,7 +83,7 @@ contains
     integer :: i
     y_reshaped(:, :) = reshape([y, y, y], shape(y_reshaped))
     do i = 1, self%iterations
-      y_pred(:, :) = predict(self, x)
+      y_pred(:, :) = self%predict(x)
       dw = - (2 * matmul(x, transpose(y_reshaped - y_pred))) / size(x(1, :))
       db = - (2 * sum(y_reshaped - y_pred)) / size(x(1, :))
       self%weights = self%weights - self%learning_rate * dw
