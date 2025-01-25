@@ -1,6 +1,7 @@
 program test_ml
   use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
   use :: linear_regression
+  use :: logistic_regression
   implicit none
   type :: iris_entry
     real(sp) :: p1, p2, p3, p4, label
@@ -11,6 +12,7 @@ program test_ml
   real(sp), allocatable :: y(:)
   integer :: i
   type(LinearRegression) :: lin_reg
+  type(LogisticRegression) :: log_reg
 
   file_length = get_file_length("data/iris.csv")
   allocate(iris_dataset(file_length))
@@ -26,6 +28,9 @@ program test_ml
   lin_reg = LinearRegression(4)
   call lin_reg%fit(x, reshape(y, [size(y), 1]))
   print *, 'Linear regression weights: ', lin_reg%weights
+  log_reg = LogisticRegression(4)
+  call log_reg%fit(x, reshape(y, [size(y), 1]))
+  print *, 'Logistic regression weights: ', log_reg%weights
   deallocate(x)
   deallocate(iris_dataset)
 
