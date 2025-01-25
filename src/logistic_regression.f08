@@ -7,7 +7,7 @@ module logistic_regression
 
   type, extends(LinearRegression) :: LogisticRegression
   contains
-    procedure :: predict => predict
+    procedure :: forward => forward
   end type LogisticRegression
 
   interface LogisticRegression
@@ -43,7 +43,7 @@ contains
     self%bias = 0
   end function
 
-  function predict(self, x) result(p)
+  function forward(self, x) result(p)
     ! predict with regression
     ! x: (seq_len, total_entries)
     ! weights: w: (seq_len, 1)

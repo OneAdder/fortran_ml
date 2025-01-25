@@ -12,7 +12,7 @@ module linear_regression
     integer :: iterations
     real(sp) :: learning_rate
   contains
-    procedure :: predict
+    procedure :: forward
     procedure :: fit
     final :: del
   end type LinearRegression
@@ -58,7 +58,7 @@ contains
     end if
   end subroutine
 
-  function predict(self, x) result(p)
+  function forward(self, x) result(p)
     ! predict with regression
     ! x: (seq_len, total_entries)
     ! weights: w: (seq_len, 1)
@@ -83,7 +83,7 @@ contains
     integer :: i
     y_reshaped(:, :) = reshape([y, y, y], shape(y_reshaped))
     do i = 1, self%iterations
-      y_pred(:, :) = self%predict(x)
+      y_pred(:, :) = self%forward(x)
       dw = - (2 * matmul(x, transpose(y_reshaped - y_pred))) / size(x(1, :))
       db = - (2 * sum(y_reshaped - y_pred)) / size(x(1, :))
       self%weights = self%weights - self%learning_rate * dw
