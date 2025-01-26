@@ -1,6 +1,7 @@
 import csv
 import warnings
 from pathlib import Path
+import torch
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
 
@@ -26,9 +27,21 @@ def logistic_reference():
     # will differ because scikit-learn's logreg is smort
     print(f'Logistic regression reference weights: {logistic_regression.coef_}')
 
+def torch_linear():
+    x = torch.tensor(torch.ones(12).view(3, 4), requires_grad=True)
+    linear = torch.nn.Linear(in_features=4, out_features=2, bias=False)
+    linear.weight.data = torch.zeros(2, 4) + 0.2
+    y = linear(x)
+    print(f'Forward on LinearLayer:\n{y}')
+    print(y)
+    y.backward(torch.zeros(3, 2) + 0.1)
+    print(f'Gradient:\n{x.grad}')
+    print(f'dw:\n{linear.weight.grad}')
+
 
 if __name__ == '__main__':
     linear_reference()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         logistic_reference()
+    torch_linear()
