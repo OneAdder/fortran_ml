@@ -120,9 +120,9 @@ contains
     ! prev_grad: (out_features, in_features)
     ! grad: (out_features, in_features)
     class(LinearLayer) :: self
-    real(4), intent(in) :: x(:, :)
-    real(4), intent(in) :: prev_grad(:, :)
-    real(4) :: grad(size(x(:, 1)), size(x(1, :)))
+    real(sp), intent(in) :: x(:, :)
+    real(sp), intent(in) :: prev_grad(:, :)
+    real(sp) :: grad(size(x(:, 1)), size(x(1, :)))
     self%dw = matmul(x, transpose(prev_grad))
     grad = matmul(self%weights, prev_grad)
   end function
