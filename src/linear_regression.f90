@@ -13,6 +13,7 @@ module linear_regression
     real(sp) :: learning_rate
   contains
     procedure :: forward
+      procedure :: backward
     procedure :: fit
     final :: del
   end type LinearRegression
@@ -69,6 +70,23 @@ contains
     p = matmul(transpose(x), self%weights) + self%bias
   end function
 
+  subroutine backward(self, x, y, y_pred)
+    ! back propagation
+    ! x: (seq_len, total_entries)
+    ! y: (1, total_entries)
+    ! y_pred: (1, total_entries)
+    class(LinearRegression) :: self
+    real(sp), intent(in) :: x(:, :)
+    real(sp), intent(in) :: y(1, size(x(1, :)))
+    real(sp), intent(in) :: y_pred(1, size(x(1, :)))
+    real(sp) :: dloss_dw(self%seq_len, 1)
+    real(sp) :: dloss_db
+    dloss_dw = - (2 * matmul(x, transpose(y - y_pred))) / size(x(1, :))
+    dloss_db = - (2 * sum(y - y_pred)) / size(x(1, :))
+    self%weights = self%weights - self%learning_rate * dloss_dw
+    self%bias = self%bias - self%learning_rate * dloss_db
+  end subroutine
+
   subroutine fit(self, x, y)
     ! fit regression
     ! x: (seq_len, total_entries)
@@ -77,17 +95,10 @@ contains
     real(sp), intent(in) :: x(:, :)
     real(sp), intent(in) :: y(:, :)
     real(sp) :: y_pred(1, size(x(1, :)))
-    real(sp) :: dw(self%seq_len, 1)
-    real(sp) :: db
-    real(sp) :: y_reshaped(1, size(x(1, :)))
     integer :: i
-    y_reshaped(:, :) = reshape([y, y, y], shape(y_reshaped))
     do i = 1, self%iterations
       y_pred(:, :) = self%forward(x)
-      dw = - (2 * matmul(x, transpose(y_reshaped - y_pred))) / size(x(1, :))
-      db = - (2 * sum(y_reshaped - y_pred)) / size(x(1, :))
-      self%weights = self%weights - self%learning_rate * dw
-      self%bias = self%bias - self%learning_rate * db
+      call self%backward(x, reshape(y, [1, size(x(1, :))]), y_pred)
     end do
   end subroutine
 end module linear_regression
