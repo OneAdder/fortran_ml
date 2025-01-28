@@ -46,14 +46,14 @@ contains
 
   function forward(self, x) result(p)
     ! predict with regression
-    ! x: (seq_len, total_entries)
+    ! x: (total_entries, seq_len)
     ! weights: w: (seq_len, 1)
-    ! p: (1, total_entries)
+    ! p: (total_entries, 1)
     class(LogisticRegression) :: self
     real(sp), intent (in) :: x(:, :)
-    real(sp) :: z(1, size(x(1, :)))
-    real(sp) :: p(1, size(x(1, :)))
-    z = matmul(transpose(x), self%weights) + self%bias
+    real(sp) :: z(size(x(:, 1)), 1)
+    real(sp) :: p(size(x(:, 1)), 1)
+    z = matmul(x, self%weights) + self%bias
     p = sigmoid(z)
   end function
 

@@ -17,12 +17,12 @@ program test_ml
   file_length = get_file_length("tests/iris.csv")
   allocate(iris_dataset(file_length))
   call load_iris_csv("tests/iris.csv", file_length, iris_dataset)
-  allocate(x(4, size(iris_dataset)))
+  allocate(x(size(iris_dataset), 4))
   do i = 1, size(iris_dataset)
-    x(1, i) = iris_dataset(i)%p1
-    x(2, i) = iris_dataset(i)%p2
-    x(3, i) = iris_dataset(i)%p3
-    x(4, i) = iris_dataset(i)%p4
+    x(i, 1) = iris_dataset(i)%p1
+    x(i, 2) = iris_dataset(i)%p2
+    x(i, 3) = iris_dataset(i)%p3
+    x(i, 4) = iris_dataset(i)%p4
   end do
   y = iris_dataset%label
   lin_reg = LinearRegression(4)

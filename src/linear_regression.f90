@@ -61,44 +61,44 @@ contains
 
   function forward(self, x) result(p)
     ! predict with regression
-    ! x: (seq_len, total_entries)
+    ! x: (total_entries, seq_len)
     ! weights: w: (seq_len, 1)
-    ! p: (1, total_entries)
+    ! p: (total_entries, 1)
     class(LinearRegression) :: self
     real(sp), intent (in) :: x(:, :)
-    real(sp) :: p(1, size(x(1, :)))
-    p = matmul(transpose(x), self%weights) + self%bias
+    real(sp) :: p(size(x(:, 1)), 1)
+    p = matmul(x, self%weights) + self%bias
   end function
 
   subroutine backward(self, x, y, y_pred)
     ! back propagation
-    ! x: (seq_len, total_entries)
-    ! y: (1, total_entries)
-    ! y_pred: (1, total_entries)
+    ! x: (total_entries, 1)
+    ! y: (total_entries, 1)
+    ! y_pred: (total_entries, 1)
     class(LinearRegression) :: self
     real(sp), intent(in) :: x(:, :)
-    real(sp), intent(in) :: y(1, size(x(1, :)))
-    real(sp), intent(in) :: y_pred(1, size(x(1, :)))
+    real(sp), intent(in) :: y(size(x(:, 1)), 1)
+    real(sp), intent(in) :: y_pred(size(x(:, 1)), 1)
     real(sp) :: dloss_dw(self%seq_len, 1)
     real(sp) :: dloss_db
-    dloss_dw = - (2 * matmul(x, transpose(y - y_pred))) / size(x(1, :))
-    dloss_db = - (2 * sum(y - y_pred)) / size(x(1, :))
+    dloss_dw = - (2 * matmul(transpose(x), y - y_pred)) / size(x(:, 1))
+    dloss_db = - (2 * sum(y - y_pred)) / size(x(:, 1))
     self%weights = self%weights - self%learning_rate * dloss_dw
     self%bias = self%bias - self%learning_rate * dloss_db
   end subroutine
 
   subroutine fit(self, x, y)
     ! fit regression
-    ! x: (seq_len, total_entries)
+    ! x: (total_entries, seq_len)
     ! y: (total_entries)
     class(LinearRegression) :: self
     real(sp), intent(in) :: x(:, :)
     real(sp), intent(in) :: y(:, :)
-    real(sp) :: y_pred(1, size(x(1, :)))
+    real(sp) :: y_pred(size(x(:, 1)), 1)
     integer :: i
     do i = 1, self%iterations
       y_pred(:, :) = self%forward(x)
-      call self%backward(x, reshape(y, [1, size(x(1, :))]), y_pred)
+      call self%backward(x, reshape(y, [size(x(:, 1)), 1]), y_pred)
     end do
   end subroutine
 end module linear_regression
