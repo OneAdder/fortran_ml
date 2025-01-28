@@ -2,25 +2,25 @@ program test
   use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
   use linear_layer
 
-  real(sp) :: x(4, 3) = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [4, 3])
+  real(sp) :: x(3, 4) = reshape([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], [3, 4])
   real(sp) :: grad(2, 3) = reshape([.1, .1, .1, .1, .1, .1, .1, .1, .1, .1, .1, .1], [2, 3])
   print *, "test"
   call test_linear_layer(x, grad)
 contains
   subroutine test_linear_layer(x, grad)
-    real(sp) :: x(4, 3)
-    real(sp) :: grad(2, 3)
-    real(sp) :: expected_forward(2, 3) = reshape([0.8, 0.8, 0.8, 0.8, 0.8, 0.8], [2, 3])
-    real(sp) :: expected_grad(4, 3) = reshape(&
-        [0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04], [4, 3]&
+    real(sp) :: x(3, 4)
+    real(sp) :: grad(3, 2)
+    real(sp) :: expected_forward(3, 2) = reshape([0.8, 0.8, 0.8, 0.8, 0.8, 0.8], [3, 2])
+    real(sp) :: expected_grad(3, 4) = reshape(&
+        [0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04], [3, 4]&
       )
     real(sp) :: expected_dw(4, 2) = reshape([0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3], [4, 2])
-    real(sp) :: actual_forward(2, 3)
-    real(sp) :: actual_grad(4, 3)
+    real(sp) :: actual_forward(3, 2)
+    real(sp) :: actual_grad(3, 4)
     real(sp) :: actual_dw(4, 2)
     type(LinearLayer) :: linear
 
-    linear = LinearLayer(4, 2)
+    linear = LinearLayer(in_features=4, out_features=2)
     actual_forward = linear%forward(x)
     actual_grad = linear%backward(x, grad)
     actual_dw = linear%dw

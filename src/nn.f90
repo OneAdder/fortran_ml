@@ -7,9 +7,13 @@ module abstract_layer
   type, abstract :: Layer
     integer :: in_features, out_features
     real(sp), allocatable :: weights(:, :)
+    ! (in_features, out_features)
     real(sp), allocatable :: bias(:)
+    ! (out_features)
     real(sp), allocatable :: dw(:, :)
+    ! (in_features, out_features)
     real(sp), allocatable :: db(:)
+    ! (out_features)
   contains
     procedure(abstract_forward), deferred :: forward
     procedure(abstract_backward), deferred :: backward
@@ -24,7 +28,7 @@ module abstract_layer
       import Layer
       class(Layer) :: self
       real(sp), intent(in) :: x(:, :)
-      real(sp) :: p(self%out_features, size(x(1, :)))
+      real(sp) :: p(size(x(:, 1)), self%out_features)
     end function
   end interface
 
@@ -35,7 +39,7 @@ module abstract_layer
       class(Layer) :: self
       real(sp), intent(in) :: x(:, :)
       real(sp), intent(in) :: prev_grad(:, :)
-      real(sp) :: grad(size(x(:, 1)), size(x(1, :)))
+      real(sp) :: grad(size(x(:, 1)), self%in_features)
     end function
   end interface
 
@@ -79,7 +83,6 @@ contains
 end module
 
 
-
 module linear_layer
   use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
   use abstract_layer
@@ -107,23 +110,23 @@ contains
   end function
 
   function forward(self, x) result(p)
-    ! x: (in_features, total_entries)
-    ! p: (out_features, total_entries)
+    ! x: (total_entries, in_features)
+    ! p: (total_entries, out_features)
     class(LinearLayer) :: self
     real(sp), intent(in) :: x(:, :)
-    real(sp) :: p(self%out_features, size(x(1, :)))
-    p = matmul(transpose(self%weights), x)
+    real(sp) :: p(size(x(:, 1)), self%out_features)
+    p = matmul(x, self%weights)
   end function
 
   function backward(self, x, prev_grad) result(grad)
-    ! x: (in_features, total_entries)
-    ! prev_grad: (out_features, in_features)
-    ! grad: (out_features, in_features)
+    ! x: (total_entries, in_features)
+    ! prev_grad: (total_entries, out_features)
+    ! grad: (total_entries, in_features)
     class(LinearLayer) :: self
     real(sp), intent(in) :: x(:, :)
     real(sp), intent(in) :: prev_grad(:, :)
-    real(sp) :: grad(size(x(:, 1)), size(x(1, :)))
-    self%dw = matmul(x, transpose(prev_grad))
-    grad = matmul(self%weights, prev_grad)
+    real(sp) :: grad(size(x(:, 1)), self%in_features)
+    self%dw = matmul(transpose(x), prev_grad)
+    grad = matmul(prev_grad, transpose(self%weights))
   end function
 end module
