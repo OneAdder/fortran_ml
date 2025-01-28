@@ -28,15 +28,16 @@ def logistic_reference():
     print(f'Logistic regression reference weights: {logistic_regression.coef_}')
 
 def torch_linear():
-    x = torch.tensor(torch.ones(12).view(3, 4), requires_grad=True)
-    linear = torch.nn.Linear(in_features=4, out_features=2, bias=False)
+    x = torch.tensor(torch.ones(3, 4), requires_grad=True)
+    linear = torch.nn.Linear(in_features=4, out_features=2, bias=True)
     linear.weight.data = torch.zeros(2, 4) + 0.2
+    linear.bias.data = torch.zeros(2) + 0.02
     y = linear(x)
     print(f'Forward on LinearLayer:\n{y}')
-    print(y)
     y.backward(torch.zeros(3, 2) + 0.1)
     print(f'Gradient:\n{x.grad}')
     print(f'dw:\n{linear.weight.grad}')
+    print(f'db:\n{linear.bias.grad}')
 
 
 if __name__ == '__main__':
