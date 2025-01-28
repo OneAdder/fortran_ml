@@ -44,18 +44,19 @@ module abstract_layer
   end interface
 
 contains
-  subroutine init_weights(self)
+  subroutine init_weights(self, default_weights_item, default_bias_item)
     class(Layer) :: self
+    real(sp) :: default_weights_item, default_bias_item
     integer i, j
     allocate(self%weights(self%in_features, self%out_features))
     do i = 1, self%in_features
       do j = 1, self%out_features
-        self%weights(i, j) = 0.2
+        self%weights(i, j) = default_weights_item
       end do
     end do
     allocate(self%bias(self%out_features))
     do i = 1, self%out_features
-      self%bias(i) = 0.02
+      self%bias(i) = default_bias_item
     end do
   end subroutine
 
@@ -100,12 +101,15 @@ module linear_layer
     module procedure :: init
   end interface
 contains
-  function init(in_features, out_features) result(self)
+  function init(in_features, out_features, default_weights_item, default_bias_item) result(self)
     integer, intent(in) :: in_features, out_features
+    real(sp), optional, value :: default_weights_item, default_bias_item
     type(LinearLayer) :: self
+    if (.not. present(default_weights_item)) default_weights_item = 0
+    if (.not. present(default_bias_item)) default_bias_item = 0
     self%in_features = in_features
     self%out_features = out_features
-    call self%init_weights()
+    call self%init_weights(default_weights_item, default_bias_item)
     call self%init_derivatives()
   end function
 
