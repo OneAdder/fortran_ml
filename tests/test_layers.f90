@@ -22,7 +22,7 @@ contains
     real(sp) :: actual_db(2)
     type(LinearLayer) :: linear
 
-    linear = LinearLayer(in_features=4, out_features=2)
+    linear = LinearLayer(in_features=4, out_features=2, default_weights_item=0.2, default_bias_item=0.02)
     actual_forward = linear%forward(x)
     actual_grad = linear%backward(x, grad)
     actual_dw = linear%dw
