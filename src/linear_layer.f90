@@ -1,11 +1,11 @@
-module abstract_layer
+module linear_layer
   use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
+  use abstract_layer
   implicit none
   private
-  public :: Layer
+  public :: LinearLayer
 
-  type, abstract :: Layer
-    integer :: in_features, out_features
+  type, extends(Layer) :: LinearLayer
     real(sp), allocatable :: weights(:, :)
     ! (in_features, out_features)
     real(sp), allocatable :: bias(:)
@@ -15,37 +15,32 @@ module abstract_layer
     real(sp), allocatable :: db(:)
     ! (out_features)
   contains
-    procedure(abstract_forward), deferred :: forward
-    procedure(abstract_backward), deferred :: backward
-    procedure :: init_weights
-    procedure :: init_derivatives
-    procedure :: del
+    procedure, public :: forward
+    procedure, public :: backward
+    procedure, private :: init_weights
+    procedure, private :: init_derivatives
+    procedure, private :: del
   end type
 
-  interface
-    function abstract_forward(self, x) result(p)
-      use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
-      import Layer
-      class(Layer) :: self
-      real(sp), intent(in) :: x(:, :)
-      real(sp) :: p(size(x(:, 1)), self%out_features)
-    end function
-  end interface
-
-  interface
-    function abstract_backward(self, x, prev_grad) result(grad)
-      use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
-      import Layer
-      class(Layer) :: self
-      real(sp), intent(in) :: x(:, :)
-      real(sp), intent(in) :: prev_grad(:, :)
-      real(sp) :: grad(size(x(:, 1)), self%in_features)
-    end function
+  interface LinearLayer
+    module procedure :: init
   end interface
 
 contains
+  function init(in_features, out_features, default_weights_item, default_bias_item) result(self)
+    integer, intent(in) :: in_features, out_features
+    real(sp), optional, value :: default_weights_item, default_bias_item
+    type(LinearLayer) :: self
+    if (.not. present(default_weights_item)) default_weights_item = 0
+    if (.not. present(default_bias_item)) default_bias_item = 0
+    self%in_features = in_features
+    self%out_features = out_features
+    call self%init_weights(default_weights_item, default_bias_item)
+    call self%init_derivatives()
+  end function
+
   subroutine init_weights(self, default_weights_item, default_bias_item)
-    class(Layer) :: self
+    class(LinearLayer) :: self
     real(sp) :: default_weights_item, default_bias_item
     integer i, j
     allocate(self%weights(self%in_features, self%out_features))
@@ -61,13 +56,13 @@ contains
   end subroutine
 
   subroutine init_derivatives(self)
-    class(Layer) :: self
+    class(LinearLayer) :: self
     allocate(self%dw(self%in_features, self%out_features))
     allocate(self%db(self%out_features))
   end subroutine
 
   subroutine del(self)
-    class(Layer) :: self
+    class(LinearLayer) :: self
     if (allocated(self%weights)) then
       deallocate(self%weights)
     end if
@@ -81,37 +76,6 @@ contains
       deallocate(self%db)
     end if
   end subroutine
-end module
-
-
-module linear_layer
-  use, intrinsic :: iso_fortran_env, only: sp=>real32, dp=>real64
-  use abstract_layer
-  implicit none
-  private
-  public :: LinearLayer
-
-  type, extends(Layer) :: LinearLayer
-  contains
-    procedure :: forward
-    procedure :: backward
-  end type
-
-  interface LinearLayer
-    module procedure :: init
-  end interface
-contains
-  function init(in_features, out_features, default_weights_item, default_bias_item) result(self)
-    integer, intent(in) :: in_features, out_features
-    real(sp), optional, value :: default_weights_item, default_bias_item
-    type(LinearLayer) :: self
-    if (.not. present(default_weights_item)) default_weights_item = 0
-    if (.not. present(default_bias_item)) default_bias_item = 0
-    self%in_features = in_features
-    self%out_features = out_features
-    call self%init_weights(default_weights_item, default_bias_item)
-    call self%init_derivatives()
-  end function
 
   function forward(self, x) result(p)
     ! x: (total_entries, in_features)
