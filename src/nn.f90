@@ -55,7 +55,7 @@ contains
     end do
     allocate(self%bias(self%out_features))
     do i = 1, self%out_features
-      self%bias(i) = 0
+      self%bias(i) = 0.02
     end do
   end subroutine
 
@@ -115,7 +115,11 @@ contains
     class(LinearLayer) :: self
     real(sp), intent(in) :: x(:, :)
     real(sp) :: p(size(x(:, 1)), self%out_features)
+    integer :: i
     p = matmul(x, self%weights)
+    do i = 1, size(x(:, 1))
+      p(i, :) = p(i, :) + self%bias
+    end do
   end function
 
   function backward(self, x, prev_grad) result(grad)
@@ -127,6 +131,7 @@ contains
     real(sp), intent(in) :: prev_grad(:, :)
     real(sp) :: grad(size(x(:, 1)), self%in_features)
     self%dw = matmul(transpose(x), prev_grad)
+    self%db = sum(prev_grad, 1)
     grad = matmul(prev_grad, transpose(self%weights))
   end function
 end module
